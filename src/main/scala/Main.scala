@@ -25,27 +25,27 @@ object Main extends App {
   val newCart = cart ++ item3
 
   // Without using inventory,
-  //  cart.checkout()
+  cart.checkout()
 
   // Using an inventory
-  var inventory = Inventory(Map(
-    prod1 -> 2,
-    prod2 -> 5,
-    prod3 -> 1,
-    prod4 -> 2,
-  ))
-  println(inventory)
-
-  inventory = inventory.addProduct(prod5, 7)
-  println(inventory)
-
-  val reqQty = 4
-  val filteredProducts: Set[Product] = inventory.filter(prod=> prod.name.startsWith("Inception"), reqQty = reqQty)
-  inventory = inventory.removeProducts(filteredProducts.zip(Seq.fill(filteredProducts.size)(reqQty)).toMap)
-
-  println(inventory)
-
-  val cart1 = Cart(filteredProducts.map(Item(_, seller1)).toSeq)
-  cart1.checkout()
+//  var inventory = Inventory(Map(
+//    prod1 -> 2,
+//    prod2 -> 5,
+//    prod3 -> 1,
+//    prod4 -> 2,
+//  ))
+//  println(inventory)
+//
+//  inventory = inventory.addProduct(prod5, 7)
+//  println(inventory)
+//
+//  val reqQty = 4
+//  val filteredProducts: Set[Product] = inventory.filter(prod=> prod.name.startsWith("Inception"), reqQty = reqQty)
+//  inventory = inventory.removeProducts(filteredProducts.zip(Seq.fill(filteredProducts.size)(reqQty)).toMap)
+//
+//  println(inventory)
+//
+//  val cart1 = Cart(filteredProducts.map(Item(_, seller1)).toSeq)
+//  cart1.checkout()
 
 }

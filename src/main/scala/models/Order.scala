@@ -39,13 +39,26 @@ case class Order(items: Seq[Item], discountPolicy: DiscountPolicy = DefaultDisco
   def generateInvoice(): String = {
     val discount: Double = getDiscount()
     val totalPrice: Double = items.map(_.product.price).sum
+    val itemsTaxes: Map[Item, Map[String, Double]] = items.map(item => item->item.taxes()).toMap
+
+    val itemsTotalTaxes: Map[Item, Double] = itemsTaxes.map{case (item, itemTaxes) => (item, itemTaxes.values.sum)}
+//    println(itemsTotalTaxes)
+
+
+    val productsInfo: String = itemsTotalTaxes.map{case (item, totalTax) =>
+      (s"${item.product.name}(Qty. ${item.quantity})", s"INR ${scale(item.product.price + totalTax)}/-")}
+      .mkString("\n\t\t")
+
+
     val taxes: Map[String, Double] = items.flatMap(_.taxes()).groupBy(_._1).mapValues(v => v.map(_._2).sum)
     val totalTaxAmount: Double = taxes.values.sum
 
     val amountPayable: Double = totalPrice + totalTaxAmount - discount
 
     val invoice: String = s"""
-    (A) Total: INR ${scale(totalPrice)}/-
+     Products (Including tax)-
+     \t${productsInfo}\n
+    (A) Total (Excluding Tax): INR ${scale(totalPrice)}/-
     (B) Tax (B1 + B2 + B3): INR ${scale(totalTaxAmount)}/-
     \t (B1) VAT: INR ${scale(taxes("VAT"))}/-
     \t (B2) Sales tax: INR ${scale(taxes("SALES_TAX"))}/-
@@ -54,7 +67,6 @@ case class Order(items: Seq[Item], discountPolicy: DiscountPolicy = DefaultDisco
     (D) Payable (A + B - C): INR ${scale(amountPayable)}/-
         Net amount(Round off (D)) = INR ${roundOff(amountPayable)} /-
     """
-
     invoice
   }
 
