@@ -13,7 +13,7 @@ case class Order(items: Seq[Item], discountPolicy: DiscountPolicy = DefaultDisco
     */
   def getDiscount(): Double = {
     val discountableItems: Seq[Item] = items.filter(_.product.productCategory.isDiscountable())
-    val totalDiscountablePrice: Double = discountableItems.map(_.product.price).sum
+    val totalDiscountablePrice: Double = discountableItems.map(item => item.product.price * item.quantity).sum
     val discountRatio: Double = discountPolicy.discountRatio(totalDiscountablePrice)
     totalDiscountablePrice * discountRatio
   }
@@ -24,7 +24,7 @@ case class Order(items: Seq[Item], discountPolicy: DiscountPolicy = DefaultDisco
     */
   def amountPayable(): Double = {
     val discount: Double = getDiscount()
-    val totalPrice: Double = items.map(_.product.price).sum
+    val totalPrice: Double = items.map(item => item.product.price * item.quantity).sum
     val taxes: Map[String, Double] = items.flatMap(_.taxes()).groupBy(_._1).mapValues(v => v.map(_._2).sum)
     val totalTaxAmount: Double = taxes.values.sum
 
@@ -38,7 +38,7 @@ case class Order(items: Seq[Item], discountPolicy: DiscountPolicy = DefaultDisco
     */
   def generateInvoice(): String = {
     val discount: Double = getDiscount()
-    val totalPrice: Double = items.map(_.product.price).sum
+    val totalPrice: Double = items.map(item => item.product.price * item.quantity).sum
     val itemsTaxes: Map[Item, Map[String, Double]] = items.map(item => item->item.taxes()).toMap
 
     val itemsTotalTaxes: Map[Item, Double] = itemsTaxes.map{case (item, itemTaxes) => (item, itemTaxes.values.sum)}
@@ -46,7 +46,7 @@ case class Order(items: Seq[Item], discountPolicy: DiscountPolicy = DefaultDisco
 
 
     val productsInfo: String = itemsTotalTaxes.map{case (item, totalTax) =>
-      (s"${item.product.name}(Qty. ${item.quantity})", s"INR ${scale(item.product.price + totalTax)}/-")}
+      (s"${item.product.name}(Qty. ${item.quantity})", s"INR ${scale(item.product.price * item.quantity + totalTax)}/-")}
       .mkString("\n\t\t")
 
 
@@ -88,8 +88,8 @@ case class Order(items: Seq[Item], discountPolicy: DiscountPolicy = DefaultDisco
 case class Item(product: Product, seller: Seller, quantity: Int = 1) {
   val itemId: String = Commons.uuid4()
 
-  val applyTax: Double => Product => Double = {
-    taxRatio: Double => (product: Product) => product.price * taxRatio
+  val getTaxAmount: Double => Product => Double = {
+    taxRatio: Double => (product: Product) => quantity * product.price * taxRatio
   }
 
   /**
@@ -99,12 +99,12 @@ case class Item(product: Product, seller: Seller, quantity: Int = 1) {
   def taxes(): Map[String, Double] = {
     val taxPolicy = seller.location.taxPolicy()
     var taxes = Map(
-      "VAT" -> applyTax(taxPolicy.VAT_RATIO)(product),
-      "SALES_TAX" -> applyTax(taxPolicy.SALES_TAX_RATIO)(product),
+      "VAT" -> getTaxAmount(taxPolicy.VAT_RATIO)(product),
+      "SALES_TAX" -> getTaxAmount(taxPolicy.SALES_TAX_RATIO)(product),
       "IMPORT_DUTY" -> 0.0
     )
     if (product.isImported) {
-      taxes += "IMPORT_DUTY" -> applyTax(taxPolicy.IMPORT_DUTY_RATIO)(product)
+      taxes += "IMPORT_DUTY" -> getTaxAmount(taxPolicy.IMPORT_DUTY_RATIO)(product)
     }
     taxes
   }

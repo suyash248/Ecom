@@ -8,19 +8,24 @@ object Main extends App {
 
   val seller1 = Seller("NCR Enterprises", loc1)
   val seller2 = Seller("Karnataka Enterprises", loc2)
+  val seller3 = Seller("Delhi Enterprises", loc1)
+  val seller4 = Seller("Noida Enterprises", loc1)
 
   val prod1 = Product("2 States", 104.0, Book.Fiction)
   val prod2 = Product("Inception", 702.0, Book.Fiction, isImported = true)
   val prod3 = Product("Mindfulness", 207.0, Book.SelfImprovement, isImported = true)
   val prod4 = Product("Towns", 151.0, Book.Management, isImported = true)
   val prod5 = Product("Khel", 59.0, Book.Fiction)
+  val prod6 = Product("Built to last", 59.0, Book.Management, isImported = true)
 
-  val item1 = Item(prod1, seller1)
+  val item1 = Item(prod1, seller1, quantity = 5)
   val item2 = Item(prod2, seller1)
+  val item3 = Item(prod3, seller3)
+  val item4 = Item(prod4, seller4)
+  val item5 = Item(prod5, seller4)
+  val item6 = Item(prod6, seller4, quantity = 10)
 
-  val item3 = Item(prod3, seller2)
-
-  val cart = Cart(Seq(item1, item2))
+  val cart = Cart(Seq(item1))
 
   val newCart = cart ++ item3
 
