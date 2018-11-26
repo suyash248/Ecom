@@ -1,6 +1,7 @@
 package services
 
-import models.Product
+import models.{Cart, Item, Product}
+
 import scala.annotation.tailrec
 
 case class Inventory(products: Map[Product, Int] = Map.empty[Product, Int].withDefaultValue(-1)) {
@@ -64,5 +65,16 @@ case class Inventory(products: Map[Product, Int] = Map.empty[Product, Int].withD
     s"\n-----------------------\nINVENTORY\n-----------------------\n${status().mkString("\n")}\n-----------------------\n"
 
   def status() = products.map{ case(prod, qty) => s"${prod.name} - ${qty}"}
+
+  def addProductToCart(cart: Cart, item: Item): Boolean = {
+    if (isProductInStock(item.product, item.quantity)) {
+      cart ++ item
+      removeProduct(item.product, item.quantity)
+      true
+    }
+    else false
+  }
+
+  def size(): Int = products.size
 
 }
