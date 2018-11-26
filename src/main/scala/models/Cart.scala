@@ -11,11 +11,16 @@ case class Cart(items: Seq[Item] = List(), discountPolicy: DiscountPolicy = Defa
   def --(item: Item): Cart = Cart(items.filter(!_.equals(item)))
 
   // Checkout -> Creates/generates an Order and prints the invoice.
-  def checkout(): Order = {
-    val order: Order = Order(items, discountPolicy)
-    val invoice: String = order.generateInvoice()
-    println(invoice)
-    order
+  def checkout(): Option[Order] = {
+    if (items.isEmpty) {
+      println("Cart is empty, can't checkout!")
+      None
+    } else {
+      val order: Order = Order(items, discountPolicy)
+      val invoice: String = order.generateInvoice()
+      println(invoice)
+      Some(order)
+    }
   }
 
   // Completes the order, and resets the cart once order is successfully placed.

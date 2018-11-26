@@ -44,12 +44,24 @@ case class Inventory(products: Map[Product, Int] = Map.empty[Product, Int].withD
     * @param reqQty
     * @return
     */
-  def filter(predicate: Product => Boolean, reqQty: Int = 1): Set[Product] = {
-    products.filterKeys(prod => predicate(prod) && products(prod) >= reqQty).keySet
+
+  def filter(predicate: Product => Boolean, reqQty: Int = 1): Map[String, Seq[Product]] = {
+    val stockInfo: Map[String, Seq[Product]] = Map()
+
+    var prodsInStock: Seq[Product] = Seq()
+    var prodsOutOfStock: Seq[Product] = Seq()
+
+    products.filterKeys(prod => predicate(prod)).foreach{case(prod, qty)=>
+        if (isProductInStock(prod, reqQty)) prodsInStock = prodsInStock :+ prod
+        else prodsOutOfStock = prodsOutOfStock :+ prod
+    }
+    Map("IN_STOCK"->prodsInStock, "OUT_OF_STOCK"->prodsOutOfStock)
   }
 
+  def isProductInStock(prod: Product, reqQty: Int = 1): Boolean = products(prod) >= reqQty
+
   override def toString: String =
-    s"\n-----------------------\n${status().mkString("\n")}\n-----------------------\n"
+    s"\n-----------------------\nINVENTORY\n-----------------------\n${status().mkString("\n")}\n-----------------------\n"
 
   def status() = products.map{ case(prod, qty) => s"${prod.name} - ${qty}"}
 

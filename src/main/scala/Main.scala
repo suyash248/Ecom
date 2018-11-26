@@ -39,18 +39,24 @@ object Main extends App {
     prod3 -> 1,
     prod4 -> 2,
   ))
-  println(inventory)
 
   inventory = inventory.addProduct(prod5, 7)
   println(inventory)
 
   val reqQty = 3
-  val filteredProducts: Set[Product] = inventory.filter(prod=> prod.name.startsWith("Inception"), reqQty = reqQty)
-  inventory = inventory.removeProducts(filteredProducts.zip(Seq.fill(filteredProducts.size)(reqQty)).toMap)
+  val filteredProducts: Map[String, Seq[Product]] = inventory.filter(prod=> prod.name.startsWith("Inception"), reqQty = reqQty)
 
-  println(inventory)
+  val prodsInStock: Seq[Product] = filteredProducts("IN_STOCK")
+  val prodsOutOfStock: Seq[Product] = filteredProducts("OUT_OF_STOCK")
 
-  val cart1 = Cart(filteredProducts.map(Item(_, seller1, reqQty)).toSeq)
+  if (prodsOutOfStock.nonEmpty) {
+    println(s"These products are out of stock ${prodsOutOfStock.map(_.name).mkString(", ")}")
+  }
+
+  inventory = inventory.removeProducts(prodsInStock.zip(Seq.fill(filteredProducts.size)(reqQty)).toMap)
+
+  val cart1 = Cart(prodsInStock.map(Item(_, seller1, reqQty)))
   cart1.checkout()
+  println(inventory)
 
 }
