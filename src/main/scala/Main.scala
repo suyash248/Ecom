@@ -12,10 +12,10 @@ object Main extends App {
   val seller4 = Seller("Noida Enterprises", loc1)
 
   val prod1 = Product("2 States", 104.0, Book.Fiction)
-  val prod2 = Product("Inception", 702.0, Book.Fiction, isImported = true)
+  val prod2 = Product("Inception", 202.0, Book.Fiction, isImported = true)
   val prod3 = Product("Mindfulness", 207.0, Book.SelfImprovement, isImported = true)
   val prod4 = Product("Towns", 151.0, Book.Management, isImported = true)
-  val prod5 = Product("Khel", 59.0, Book.Fiction)
+  val prod5 = Product("Rule the game", 59.0, Book.Management)
   val prod6 = Product("Built to last", 59.0, Book.Management, isImported = true)
 
   val item1 = Item(prod1, seller1, quantity = 5)
@@ -30,27 +30,27 @@ object Main extends App {
   val newCart = cart ++ item3
 
   // Without using inventory,
-  cart.checkout()
+//  cart.checkout()
 
   // Using an inventory
-//  var inventory = Inventory(Map(
-//    prod1 -> 2,
-//    prod2 -> 5,
-//    prod3 -> 1,
-//    prod4 -> 2,
-//  ))
-//  println(inventory)
-//
-//  inventory = inventory.addProduct(prod5, 7)
-//  println(inventory)
-//
-//  val reqQty = 4
-//  val filteredProducts: Set[Product] = inventory.filter(prod=> prod.name.startsWith("Inception"), reqQty = reqQty)
-//  inventory = inventory.removeProducts(filteredProducts.zip(Seq.fill(filteredProducts.size)(reqQty)).toMap)
-//
-//  println(inventory)
-//
-//  val cart1 = Cart(filteredProducts.map(Item(_, seller1)).toSeq)
-//  cart1.checkout()
+  var inventory = Inventory(Map(
+    prod1 -> 2,
+    prod2 -> 5,
+    prod3 -> 1,
+    prod4 -> 2,
+  ))
+  println(inventory)
+
+  inventory = inventory.addProduct(prod5, 7)
+  println(inventory)
+
+  val reqQty = 3
+  val filteredProducts: Set[Product] = inventory.filter(prod=> prod.name.startsWith("Inception"), reqQty = reqQty)
+  inventory = inventory.removeProducts(filteredProducts.zip(Seq.fill(filteredProducts.size)(reqQty)).toMap)
+
+  println(inventory)
+
+  val cart1 = Cart(filteredProducts.map(Item(_, seller1, reqQty)).toSeq)
+  cart1.checkout()
 
 }

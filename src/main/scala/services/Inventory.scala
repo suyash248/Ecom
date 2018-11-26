@@ -48,15 +48,9 @@ case class Inventory(products: Map[Product, Int] = Map.empty[Product, Int].withD
     products.filterKeys(prod => predicate(prod) && products(prod) >= reqQty).keySet
   }
 
-//  def poll(predicate: Product => Boolean, reqQty: Int = 1): Inventory = {
-//    // Extracts(Filter and deletes) the available(In stock) products which matching the predicate from the inventory.
-//    val filteredProduct: Set[Product] = filter(predicate, reqQty)
-//    @tailrec
-//    def pollHelper(products: Set[Product]): Inventory = {
-//      if (products.isEmpty) this
-//      else if(products.size == 1) removeProduct(products.head, reqQty)
-//      else pollHelper(products - products.head)
-//    }
-//    pollHelper(filteredProduct)
-//  }
+  override def toString: String =
+    s"\n-----------------------\n${status().mkString("\n")}\n-----------------------\n"
+
+  def status() = products.map{ case(prod, qty) => s"${prod.name} - ${qty}"}
+
 }
